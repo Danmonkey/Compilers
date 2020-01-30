@@ -19,6 +19,7 @@ public class Main {
         Pattern longComment = Pattern.compile("^\\*/");
         Pattern lCommentEnd = Pattern.compile("^/\\*");
         Pattern withinComment = Pattern.compile("^[^*/]");
+        Pattern errors = Pattern.compile("[^a-zA-Z0-9;()\\[\\]{}*/+\\-<>=!]");
 	    File pull = null;
 	    Scanner yeet = null;
 	    int count = 0;
@@ -97,6 +98,8 @@ public class Main {
                         toLex = wCommentMatch.replaceFirst("");
                         if(toLex.isEmpty()) {
                             toLex = yeet.next();
+                            stripMatch = stripper.matcher(toLex);
+                            toLex = stripMatch.replaceAll("");
                             wCommentMatch = withinComment.matcher(toLex);
                         }
                     }
@@ -105,9 +108,17 @@ public class Main {
                         toLex = eCommment.replaceFirst("");
                     } else System.out.println("fuck");
                 }
-                for(int i = count+countDiff;count<i;count++){
-                    System.out.println(holdsIt.get(count).toString());
+                Matcher errorMatch = errors.matcher(toLex);
+                while(errorMatch.find()){
+                    String s = errorMatch.group();
+                    Token addMe = new Token(s, type.errors);
+                    holdsIt.add(addMe);
+                    countDiff++;
                 }
+
+            }
+            for(int i = count+countDiff;count<i;count++){
+                System.out.println(holdsIt.get(count).toString());
             }
         }
     }
