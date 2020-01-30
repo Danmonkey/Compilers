@@ -12,13 +12,16 @@ public class Main {
         Pattern nums = Pattern.compile("^\\d+");
         Pattern ID = Pattern.compile("^[a-zA-Z]+");
         Pattern stripper = Pattern.compile("\\s");
-        Pattern symbols = Pattern.compile("^([+\\-;/.()\\[\\]{}]|[<>=!]|\\*/|\\*)=");
+        Pattern delim = Pattern.compile("^([;()\\[\\]{}]|\\*/)");
+        Pattern mathOp = Pattern.compile("^[+\\-/*]|[<>=](?!=)");
+        Pattern relOp = Pattern.compile("^[<>=!]=");
         Pattern shortComment = Pattern.compile("^//");
         Pattern longComment = Pattern.compile("^\\*/");
+        Pattern lCommentEnd = Pattern.compile("^/\\*");
+        Pattern withinComment = Pattern.compile("^[^*/]");
 	    File pull = null;
 	    Scanner yeet = null;
 	    int count = 0;
-	    boolean commentFlag = false;
 	    ArrayList<Token> holdsIt = new ArrayList<>();
 	    try{
 	        pull = new File(args[0]);
@@ -30,20 +33,81 @@ public class Main {
         }
 	    yeet.useDelimiter("\n");
         while(yeet.hasNext()) {
-
             String toLex = yeet.next();
-            Matcher keyMatch = keys.matcher(toLex);
-            Matcher numMatch = nums.matcher(toLex);
-            Matcher IDMatch = ID.matcher(toLex);
             Matcher stripMatch = stripper.matcher(toLex);
-            Matcher symbolMatch = symbols.matcher(toLex);
-            Matcher lCommentMatch = longComment.matcher(toLex);
-            Matcher sCommentMatch = shortComment.matcher(toLex);
-            stripMatch.replaceAll("");
             System.out.println("Read: " + toLex);
+            toLex = stripMatch.replaceAll("");
             int countDiff = 0;
             while (!toLex.isEmpty()) {
-
+                Matcher keyMatch = keys.matcher(toLex);
+                while(keyMatch.find()){
+                    String s = keyMatch.group();
+                    Token addMe = new Token(s, type.key);
+                    holdsIt.add(addMe);
+                    toLex = keyMatch.replaceFirst("");
+                    countDiff++;
+                }
+                Matcher IDMatch = ID.matcher(toLex);
+                while(IDMatch.find()){
+                    String s = IDMatch.group();
+                    Token addMe = new Token(s, type.ID);
+                    holdsIt.add(addMe);
+                    toLex = IDMatch.replaceFirst("");
+                    countDiff++;
+                }
+                Matcher delimMatch = delim.matcher(toLex);
+                while(delimMatch.find()){
+                    String s = delimMatch.group();
+                    Token addMe = new Token(s, type.delim);
+                    holdsIt.add(addMe);
+                    toLex = delimMatch.replaceFirst("");
+                    countDiff++;
+                }
+                Matcher mathMatch = mathOp.matcher(toLex);
+                while(mathMatch.find()){
+                    String s = mathMatch.group();
+                    Token addMe = new Token(s, type.mathOp);
+                    holdsIt.add(addMe);
+                    toLex = mathMatch.replaceFirst("");
+                    countDiff++;
+                }
+                Matcher relMatch = relOp.matcher(toLex);
+                while(relMatch.find()){
+                    String s = relMatch.group();
+                    Token addMe = new Token(s, type.relop);
+                    holdsIt.add(addMe);
+                    toLex = relMatch.replaceFirst("");
+                    countDiff++;
+                }
+                Matcher numMatch = nums.matcher(toLex);
+                while(numMatch.find()){
+                    String s = numMatch.group();
+                    Token addMe = new Token(s, type.num);
+                    holdsIt.add(addMe);
+                    toLex = numMatch.replaceFirst("");
+                    countDiff++;
+                }
+                Matcher sCommentMatch = shortComment.matcher(toLex);
+                if(sCommentMatch.find())
+                    toLex = "";
+                Matcher lCommentBegin = longComment.matcher(toLex);
+                if(lCommentBegin.find()){
+                    Matcher wCommentMatch = withinComment.matcher(toLex);
+                    while(wCommentMatch.find()){
+                        toLex = wCommentMatch.replaceFirst("");
+                        if(toLex.isEmpty()) {
+                            toLex = yeet.next();
+                            wCommentMatch = withinComment.matcher(toLex);
+                        }
+                    }
+                    Matcher eCommment = lCommentEnd.matcher(toLex);
+                    if(eCommment.find()) {
+                        toLex = eCommment.replaceFirst("");
+                    } else System.out.println("fuck");
+                }
+                for(int i = count+countDiff;count<i;count++){
+                    System.out.println(holdsIt.get(count).toString());
+                }
             }
         }
     }

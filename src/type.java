@@ -1,3 +1,3 @@
 public enum type {
-    key, symbol, ID, num
+    key, mathOp, ID, num, relop, delim
 }

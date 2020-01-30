@@ -29,6 +29,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="last.edited.regexp" value="" />
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RunManager">
@@ -73,6 +74,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="552" y="178" key="#Notifications/0.0.1920.1040@0.0.1920.1040" timestamp="1579568935821" />
+    <state x="765" y="229" key="#com.intellij.ide.util.MemberChooser" timestamp="1580353607082">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="765" y="229" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1580353607082" />
     <state x="740" y="274" key="FileChooserDialogImpl" timestamp="1579568370188">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -81,10 +86,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="461" y="162" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1579568526996" />
-    <state x="1136" y="343" key="com.intellij.ide.util.TipDialog" timestamp="1579977065347">
+    <state x="1136" y="343" key="com.intellij.ide.util.TipDialog" timestamp="1580314616483">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="1136" y="343" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1579977065347" />
+    <state x="1136" y="343" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1580314616483" />
     <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1579993766731">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>

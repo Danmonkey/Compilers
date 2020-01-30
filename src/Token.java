@@ -18,7 +18,8 @@ public class Token {
         theType = tType;
     }
 
+    @Override
     public String toString(){
-        return contents.concat(String.valueOf(theType));
+        return String.valueOf(theType).concat(": ".concat(contents));
     }
 }
