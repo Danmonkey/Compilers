@@ -1,0 +1,37 @@
+/****This**********/
+/**************/
+/*************************
+i = 333;        ******************/       */
+aDs///123
+iiii == 3@33;
+IF is not and id
+//this is a comment*/sdsfre
+int g 4 cd (int u, int v)      {
+if(v == >= 0) return/*a comment*/ u;
+else ret_urn gcd(vxxxxxxvvvvv, u-u/v*v);
+       /* u-u/v*v == u mod v*/
+!
+}
+
+return void while       void main()
+
+!=
+
+
+/* skipme */
+dontskipone /* skipme */ dontskiptwo
+dontskipthree/*/*skipme/* @@@ /** /skipme/**/dontskipfour
+dontskipfive/*skipme
+skipme skipme*/dontskipsix
+ifx abc_def ghi@jkl @ _//skipme
++-*/[]{}()
+        ==     = > < >= <= ===
+123 a456
+        if while else void int return
+whilex elsex voidx intx returnx ifif ifwhile
+
+int main(void x, int y) {
+    return 0;
+}
+
+
