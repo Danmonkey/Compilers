@@ -18,7 +18,7 @@ public class Main {
         Pattern shortComment = Pattern.compile("^//");
         Pattern longComment = Pattern.compile("^\\*/");
         Pattern lCommentEnd = Pattern.compile("^/\\*");
-        Pattern withinComment = Pattern.compile("^[^*/]");
+        Pattern withinComment = Pattern.compile("^.(?!\\*/)");
         Pattern errors = Pattern.compile("[^a-zA-Z0-9;()\\[\\]{}*/+\\-<>=!]");
 	    File pull = null;
 	    Scanner yeet = null;
@@ -40,6 +40,27 @@ public class Main {
             toLex = stripMatch.replaceAll("");
             int countDiff = 0;
             while (!toLex.isEmpty()) {
+                Matcher lCommentBegin = longComment.matcher(toLex);
+                while(lCommentBegin.find()) {
+                    Matcher wCommentMatch = withinComment.matcher(toLex);
+                    while (wCommentMatch.find()) {
+                        toLex = wCommentMatch.replaceFirst("");
+                        if (toLex.isEmpty()) {
+                            toLex = yeet.next();
+                            stripMatch = stripper.matcher(toLex);
+                            toLex = stripMatch.replaceAll("");
+                            wCommentMatch = withinComment.matcher(toLex);
+                        }
+                    }
+                    Matcher eCommment = lCommentEnd.matcher(toLex);
+                    if (eCommment.find()) {
+                        toLex = eCommment.replaceFirst("");
+                    }
+                }
+                Matcher sCommentMatch = shortComment.matcher(toLex);
+                if(sCommentMatch.find())
+                    toLex = "";
+
                 Matcher keyMatch = keys.matcher(toLex);
                 while(keyMatch.find()){
                     String s = keyMatch.group();
@@ -87,26 +108,6 @@ public class Main {
                     holdsIt.add(addMe);
                     toLex = numMatch.replaceFirst("");
                     countDiff++;
-                }
-                Matcher sCommentMatch = shortComment.matcher(toLex);
-                if(sCommentMatch.find())
-                    toLex = "";
-                Matcher lCommentBegin = longComment.matcher(toLex);
-                if(lCommentBegin.find()){
-                    Matcher wCommentMatch = withinComment.matcher(toLex);
-                    while(wCommentMatch.find()){
-                        toLex = wCommentMatch.replaceFirst("");
-                        if(toLex.isEmpty()) {
-                            toLex = yeet.next();
-                            stripMatch = stripper.matcher(toLex);
-                            toLex = stripMatch.replaceAll("");
-                            wCommentMatch = withinComment.matcher(toLex);
-                        }
-                    }
-                    Matcher eCommment = lCommentEnd.matcher(toLex);
-                    if(eCommment.find()) {
-                        toLex = eCommment.replaceFirst("");
-                    } else System.out.println("fuck");
                 }
                 Matcher errorMatch = errors.matcher(toLex);
                 while(errorMatch.find()){
