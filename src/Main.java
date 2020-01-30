@@ -16,8 +16,8 @@ public class Main {
         Pattern mathOp = Pattern.compile("^[+\\-/*]|[<>=](?!=)");
         Pattern relOp = Pattern.compile("^[<>=!]=");
         Pattern shortComment = Pattern.compile("^//");
-        Pattern longComment = Pattern.compile("^\\*/");
-        Pattern lCommentEnd = Pattern.compile("^/\\*");
+        Pattern longComment = Pattern.compile("^/\\*");
+        Pattern lCommentEnd = Pattern.compile("^\\*/");
         Pattern withinComment = Pattern.compile("^.(?!\\*/)");
         Pattern errors = Pattern.compile("[^a-zA-Z0-9;()\\[\\]{}*/+\\-<>=!]");
 	    File pull = null;
