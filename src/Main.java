@@ -11,116 +11,157 @@ public class Main {
         Pattern keys = Pattern.compile("^(if|int|void|else|return|while)(?![a-zA-Z])");
         Pattern nums = Pattern.compile("^\\d+");
         Pattern ID = Pattern.compile("^[a-zA-Z]+");
-        Pattern stripper = Pattern.compile("\\s");
-        Pattern delim = Pattern.compile("^([;()\\[\\]{}]|\\*/)");
-        Pattern mathOp = Pattern.compile("^[+\\-/*]|[<>=](?!=)");
-        Pattern relOp = Pattern.compile("^[<>=!]=");
+        Pattern stripper = Pattern.compile("^\\s+");
+        Pattern delim = Pattern.compile("^[;()\\[\\]{},]");
+        Pattern mathOp = Pattern.compile("^[+\\-/*=]");
+        Pattern relOp = Pattern.compile("^[<>=!]=|^[<>]");
         Pattern shortComment = Pattern.compile("^//");
         Pattern longComment = Pattern.compile("^/\\*");
-        Pattern lCommentEnd = Pattern.compile("^\\*/");
-        Pattern withinComment = Pattern.compile("^.(?!\\*/)");
-        Pattern errors = Pattern.compile("[^a-zA-Z0-9;()\\[\\]{}*/+\\-<>=!]");
-	    File pull = null;
-	    Scanner yeet = null;
-	    int count = 0;
-	    ArrayList<Token> holdsIt = new ArrayList<>();
-	    try{
-	        pull = new File(args[0]);
+        Pattern errors = Pattern.compile("^[^a-zA-Z0-9;()\\[\\]{}*/+\\-<>=, ]|!(?!=)");
+        boolean commentflag = false;
+        File pull = null;
+        Scanner yeet = null;
+        int countDiff = 0;
+        ArrayList<Token> holdsIt = new ArrayList<>();
+        try {
+            pull = new File(args[0]);
             yeet = new Scanner(pull);
         } catch (Exception e) {
-	        System.out.println("File name was invalid.");
+            System.out.println("File name was invalid.");
             e.printStackTrace();
             exit(-1);
         }
-	    yeet.useDelimiter("\n");
-        while(yeet.hasNext()) {
+        yeet.useDelimiter("\n");
+        while (yeet.hasNext()) {
             String toLex = yeet.next();
-            Matcher stripMatch = stripper.matcher(toLex);
             System.out.println("Read: " + toLex);
-            toLex = stripMatch.replaceAll("");
-            int countDiff = 0;
             while (!toLex.isEmpty()) {
                 Matcher lCommentBegin = longComment.matcher(toLex);
-                while(lCommentBegin.find()) {
-                    Matcher wCommentMatch = withinComment.matcher(toLex);
-                    while (wCommentMatch.find()) {
-                        toLex = wCommentMatch.replaceFirst("");
-                        if (toLex.isEmpty()) {
-                            toLex = yeet.next();
-                            stripMatch = stripper.matcher(toLex);
-                            toLex = stripMatch.replaceAll("");
-                            wCommentMatch = withinComment.matcher(toLex);
-                        }
-                    }
-                    Matcher eCommment = lCommentEnd.matcher(toLex);
-                    if (eCommment.find()) {
-                        toLex = eCommment.replaceFirst("");
-                    }
+                if (lCommentBegin.find()) {
+                    commentflag = true;
+                    toLex = lCommentBegin.replaceFirst("");
                 }
-                Matcher sCommentMatch = shortComment.matcher(toLex);
-                if(sCommentMatch.find())
-                    toLex = "";
+                if (!commentflag) {
+                    Matcher sCommentMatch = shortComment.matcher(toLex);
+                    if (sCommentMatch.find())
+                        toLex = "";
 
-                Matcher keyMatch = keys.matcher(toLex);
-                while(keyMatch.find()){
-                    String s = keyMatch.group();
-                    Token addMe = new Token(s, type.key);
-                    holdsIt.add(addMe);
-                    toLex = keyMatch.replaceFirst("");
-                    countDiff++;
-                }
-                Matcher IDMatch = ID.matcher(toLex);
-                while(IDMatch.find()){
-                    String s = IDMatch.group();
-                    Token addMe = new Token(s, type.ID);
-                    holdsIt.add(addMe);
-                    toLex = IDMatch.replaceFirst("");
-                    countDiff++;
-                }
-                Matcher delimMatch = delim.matcher(toLex);
-                while(delimMatch.find()){
-                    String s = delimMatch.group();
-                    Token addMe = new Token(s, type.delim);
-                    holdsIt.add(addMe);
-                    toLex = delimMatch.replaceFirst("");
-                    countDiff++;
-                }
-                Matcher mathMatch = mathOp.matcher(toLex);
-                while(mathMatch.find()){
-                    String s = mathMatch.group();
-                    Token addMe = new Token(s, type.mathOp);
-                    holdsIt.add(addMe);
-                    toLex = mathMatch.replaceFirst("");
-                    countDiff++;
-                }
-                Matcher relMatch = relOp.matcher(toLex);
-                while(relMatch.find()){
-                    String s = relMatch.group();
-                    Token addMe = new Token(s, type.relop);
-                    holdsIt.add(addMe);
-                    toLex = relMatch.replaceFirst("");
-                    countDiff++;
-                }
-                Matcher numMatch = nums.matcher(toLex);
-                while(numMatch.find()){
-                    String s = numMatch.group();
-                    Token addMe = new Token(s, type.num);
-                    holdsIt.add(addMe);
-                    toLex = numMatch.replaceFirst("");
-                    countDiff++;
-                }
-                Matcher errorMatch = errors.matcher(toLex);
-                while(errorMatch.find()){
-                    String s = errorMatch.group();
-                    Token addMe = new Token(s, type.errors);
-                    holdsIt.add(addMe);
-                    countDiff++;
-                }
+                    Matcher keyMatch = keys.matcher(toLex);
+                    if (keyMatch.find()) {
+                        String s = keyMatch.group();
+                        Token addMe = new Token(s, type.key);
+                        holdsIt.add(addMe);
+                        System.out.println("Key:" + s);
+                        toLex = keyMatch.replaceFirst("");
+                        countDiff++;
+                        continue;
+                    }
+                    Matcher IDMatch = ID.matcher(toLex);
+                    if(IDMatch.find()) {
+                        String s = IDMatch.group();
+                        Token addMe = new Token(s, type.ID);
+                        holdsIt.add(addMe);
+                        System.out.println("ID: "+ s);
+                        toLex = IDMatch.replaceFirst("");
+                        countDiff++;
+                        continue;
+                    }
+                    Matcher delimMatch = delim.matcher(toLex);
+                    if (delimMatch.find()) {
+                        String s = delimMatch.group();
+                        Token addMe = new Token(s, type.delim);
+                        holdsIt.add(addMe);
+                        System.out.println("Delim: " +s);
+                        toLex = delimMatch.replaceFirst("");
+                        countDiff++;
+                        continue;
+                    }
+                    Matcher relMatch = relOp.matcher(toLex);
+                    if (relMatch.find()) {
+                        String s = relMatch.group();
+                        Token addMe = new Token(s, type.relop);
+                        holdsIt.add(addMe);
+                        System.out.println("relOp: "+s);
+                        toLex = relMatch.replaceFirst("");
+                        countDiff++;
+                        continue;
+                    }
+                    Matcher mathMatch = mathOp.matcher(toLex);
+                    if (mathMatch.find()) {
+                        String s = mathMatch.group();
+                        Token addMe = new Token(s, type.mathOp);
+                        holdsIt.add(addMe);
+                        System.out.println("mathOp: "+s);
+                        toLex = mathMatch.replaceFirst("");
+                        countDiff++;
+                        continue;
+                    }
 
+                    Matcher numMatch = nums.matcher(toLex);
+                    if (numMatch.find()) {
+                        String s = numMatch.group();
+                        Token addMe = new Token(s, type.num);
+                        holdsIt.add(addMe);
+                        System.out.println("num: "+s);
+                        toLex = numMatch.replaceFirst("");
+                        countDiff++;
+                        continue;
+                    }
+                    Matcher errorMatch = errors.matcher(toLex);
+                    if (errorMatch.find()) {
+                        String s = errorMatch.group();
+                        Token addMe = new Token(s, type.errors);
+                        holdsIt.add(addMe);
+                        System.out.println("Error: "+s);
+                        toLex = errorMatch.replaceFirst("");
+                        countDiff++;
+                        continue;
+                    }
+                    Matcher stripMatch = stripper.matcher(toLex);
+                    if (stripMatch.find()){
+                        toLex = stripMatch.replaceFirst("");
+                    }
+                } else {
+                    toLex = lexBigComment(toLex);
+                    if(toLex==null){
+                        commentflag=false;
+                        toLex = "";
+                    }
+                    else if (toLex.isEmpty()){
+                        toLex=yeet.next();
+                        System.out.println("Read: " + toLex);
+                    }
+                    else{
+                        commentflag=false;
+                    }
+                }
             }
-            for(int i = count+countDiff;count<i;count++){
-                System.out.println(holdsIt.get(count).toString());
+        }
+    }
+
+    public static String lexBigComment(String lexMe){
+        char[] chary = lexMe.toCharArray();
+        int boundary = 0;
+        for(int i =0;i<chary.length-1;i++){
+            if(chary[i]=='*'){
+                if(chary[i+1]=='/'){
+                    boundary = i+2;
+                    break;
+                }
             }
+        }
+        if(boundary==0){
+            return "";
+        }
+        else if(boundary>=chary.length){
+            return null;
+        }
+        else{
+            StringBuilder keep = new StringBuilder();
+            for (;boundary<=chary.length-1;boundary++){
+                keep.append(chary[boundary]);
+            }
+            return keep.toString();
         }
     }
 }
