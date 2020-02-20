@@ -154,12 +154,6 @@ public class Parser {
         }
         else if(theTokens.get(walker).getType()==type.num||theTokens.get(walker).getContents().contentEquals("(")){
             simpleExpression();
-            if(theTokens.get(walker).getContents().contentEquals(";")){
-                tryToWalk();
-            }
-            else{
-                REJECT();
-            }
         }
     }
 
@@ -336,6 +330,10 @@ public class Parser {
             else{
                 REJECT();
             }
+        }
+        else if(theTokens.get(walker).getContents().contentEquals("=")){
+            tryToWalk();
+            expression();
         }
         else{
             simpleExpressionPrime();
