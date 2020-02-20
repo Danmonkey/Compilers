@@ -17,6 +17,7 @@ public class Token {
     public void setType(type tType){
         theType = tType;
     }
+    public type getType(){return theType;}
 
     @Override
     public String toString(){
