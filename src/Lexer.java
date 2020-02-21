@@ -16,13 +16,13 @@ public class Lexer {
     Pattern keys = Pattern.compile("^(if|int|void|else|return|while)(?![a-zA-Z])");
     Pattern nums = Pattern.compile("^\\d+");
     Pattern ID = Pattern.compile("^[a-zA-Z]+");
-    Pattern stripper = Pattern.compile("^\\s+");
+    Pattern stripper = Pattern.compile("(^\\s+)");
     Pattern delim = Pattern.compile("^[;()\\[\\]{},]");
     Pattern mathOp = Pattern.compile("^[+\\-/*=]");
     Pattern relOp = Pattern.compile("^[<>=!]=|^[<>]");
     Pattern shortComment = Pattern.compile("^//");
     Pattern longComment = Pattern.compile("^/\\*");
-    Pattern errors = Pattern.compile("^[^a-zA-Z0-9;()\\[\\]{}*/+\\-<>=, ]|!(?!=)");
+    Pattern errors = Pattern.compile("^[^a-zA-Z0-9;()\\[\\]{}*/+\\-<>=, \\s]|!(?!=)");
     boolean commentflag = false;
     File pull = null;
     Scanner yeet = null;
