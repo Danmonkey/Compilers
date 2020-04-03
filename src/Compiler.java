@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 
-public class Main {
+public class Compiler {
 
     public static void main(String[] args) {
         Lexer lexMe = new Lexer();

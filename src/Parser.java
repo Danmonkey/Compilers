@@ -1,17 +1,22 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static java.lang.System.exit;
 
 public class Parser {
     private ArrayList<Token> theTokens;
     private int walker = 0;
+    private int currentScope = 0;
+    private boolean mSeen = false;
+    private ArrayList<HashMap<String, Variable>> scopifier = new ArrayList<HashMap<String, Variable>>();
 
     public Parser(ArrayList<Token> WALK){
         theTokens = WALK;
     }
 
     public void parse(){
-            declist();
+        scopifier.add(new HashMap<String, Variable>(theTokens.size())); //global scope
+        declist();
         System.out.println("ACCEPT");
     }
 
@@ -22,10 +27,7 @@ public class Parser {
 
     private void declistprime() {
         if(theTokens.get(walker).getContents().contentEquals("int")||theTokens.get(walker).getContents().contentEquals("void")){
-            tryToWalk();
-        }
-        else if(theTokens.get(walker).getType()!=type.terminal){
-            REJECT();
+            declist();
         }
     }
 
@@ -53,7 +55,22 @@ public class Parser {
         }
         else if(theTokens.get(walker).getContents().contentEquals("(")){
             tryToWalk();
+            if(mSeen){
+                REJECT();
+            }
+            else if(theTokens.get(walker-2).getContents().contentEquals("main")){
+                mSeen=true;
+            }
             fundec();
+        }
+        else{
+            if(theTokens.get(walker).getContents().contentEquals(";")){
+                tryToWalk();
+            }
+            else{
+                REJECT();
+            }
+            scopifier.get(currentScope).put(theTokens.get(walker-2).getContents(), new Variable(0, true));
         }
     }
 
@@ -74,6 +91,7 @@ public class Parser {
             localDec();
             statementList();
             if(theTokens.get(walker).getContents().contentEquals("}")){
+                scopifier.remove(currentScope--);
                 tryToWalk();
             }
             else{
@@ -100,10 +118,12 @@ public class Parser {
             expressionStmt();
         }
         else if(yeet.getContents().contentEquals("{")){
+            scopifier.add(++currentScope, new HashMap<String, Variable>(theTokens.size()));
             tryToWalk();
             localDec();
             statementList();
             if(theTokens.get(walker).getContents().contentEquals("}")){
+                scopifier.remove(currentScope--);
                 tryToWalk();
             }
             else{
@@ -149,6 +169,7 @@ public class Parser {
 
     private void expression() {
         if(theTokens.get(walker).getType()==type.ID){
+            scopeBounce(currentScope, theTokens.get(walker).getContents());
             tryToWalk();
             expressionFactored();
         }
@@ -297,7 +318,13 @@ public class Parser {
     private void factor() {
         if(theTokens.get(walker).getContents().contentEquals("(")){
             tryToWalk();
-            expression();
+            if(scopifier.get(0).get(theTokens.get(walker-2).getContents()).getParam()){
+                int holdval = walker;
+                expression();
+                if(holdval==walker){
+                    REJECT();
+                }
+            }
             if(theTokens.get(walker).getContents().contentEquals(")")){
                 tryToWalk();
             }
@@ -326,6 +353,9 @@ public class Parser {
             if(theTokens.get(walker).getContents().contentEquals("=")){
                 tryToWalk();
                 expression();
+            }
+            else if(theTokens.get(walker).getContents().contentEquals(";")){
+                tryToWalk();
             }
             else{
                 REJECT();
@@ -371,7 +401,7 @@ public class Parser {
     private void simpleExpressionFactoredPrime() {
         if(theTokens.get(walker).getType()==type.relop){
             tryToWalk();
-            additiveExpressionPrimeFactored();
+            term();
         }
     }
 
@@ -432,6 +462,7 @@ public class Parser {
         if(theTokens.get(walker).getContents().contentEquals("int")||theTokens.get(walker).getContents().contentEquals("void")){
             tryToWalk();
             if(theTokens.get(walker).getType()==type.ID){
+                scopifier.get(currentScope).put(theTokens.get(walker).getContents(), new Variable(0, true));
                 tryToWalk();
                 vardec();
                 if(theTokens.get(walker).getContents().contentEquals(";")){
@@ -462,7 +493,14 @@ public class Parser {
     }
 
     private void param() {
-        if(theTokens.get(walker).getContents().contentEquals("int")||theTokens.get(walker).getContents().contentEquals("void")){
+        scopifier.add(++currentScope, new HashMap<String, Variable>(theTokens.size()));
+        if(theTokens.get(walker).getContents().contentEquals("int")){
+            scopifier.get(currentScope-1).put(theTokens.get(walker-2).getContents(), new Variable(theTokens.get(walker-3).getContents().contentEquals("int"), true));
+            tryToWalk();
+            paramFactored();
+        }
+        else if (theTokens.get(walker).getContents().contentEquals("void")){
+            scopifier.get(currentScope-1).put(theTokens.get(walker-2).getContents(), new Variable(theTokens.get(walker-3).getContents().contentEquals("int"), false));
             tryToWalk();
             paramFactored();
         }
@@ -473,6 +511,12 @@ public class Parser {
 
     private void paramFactored() {
         if(theTokens.get(walker).getType()==type.ID){
+            if(scopifier.get(currentScope).containsKey(theTokens.get(walker).getContents())||theTokens.get(walker-1).getContents().contentEquals("void")){
+                REJECT();
+            }
+            else{
+                scopifier.get(currentScope).put(theTokens.get(walker).getContents(), new Variable(0, true));
+            }
             tryToWalk();
             if(theTokens.get(walker).getContents().contentEquals("[")){
                 tryToWalk();
@@ -488,6 +532,7 @@ public class Parser {
 
     private void vardec() {
         if (theTokens.get(walker).getType()==type.num){
+            scopifier.get(currentScope).put(theTokens.get(walker-2).getContents(), new Variable(true, Integer.parseInt(theTokens.get(walker).getContents())));
             tryToWalk();
             if(theTokens.get(walker).getContents().contentEquals("]")){
                 tryToWalk();
@@ -517,5 +562,17 @@ public class Parser {
     private void REJECT(){
         System.out.println("REJECT");
         exit(-1);
+    }
+
+    private void scopeBounce(int checker, String fval){
+        if(checker<0){
+            REJECT();
+        }
+        if(scopifier.get(checker).containsKey(fval)){
+
+        }
+        else{
+            scopeBounce(checker -1, fval);
+        }
     }
 }
